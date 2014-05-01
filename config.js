@@ -6,14 +6,15 @@
         flushInterval: parseInt(process.env.FLUSH_INTERVAL),
         graphite: {
          globalPrefix: process.env.GRAPHITE_GLOBAL_PREFIX,
+         legacyNamespace: process.env.GRAPHITE_LEGACY_NAMESPACE !== 'false'
         },
-        debug: process.env.STATSD_DEBUG == 'true',
-        dumpMessages: process.env.STATSD_DUMP == 'true',
+        debug: process.env.STATSD_DEBUG === 'true',
+        dumpMessages: process.env.STATSD_DUMP === 'true',
         backends: [
           "./backends/graphite"
         ]
     };
-    if (process.env.ENABLE_CONSOLE_BACKEND == 'true') {
+    if (process.env.ENABLE_CONSOLE_BACKEND === 'true') {
       config.backends.push("./backends/console");
     }
     return config;

@@ -3,18 +3,27 @@
 # VERSION               0.1
 # DOCKER-VERSION        0.4.0
 
-from    ubuntu:12.10
-run     echo "deb http://archive.ubuntu.com/ubuntu quantal main universe" > /etc/apt/sources.list
-run     apt-get -y update
-run     apt-get -y install wget git python
-run     wget -O /tmp/node-v0.11.0.tar.gz http://nodejs.org/dist/v0.11.0/node-v0.11.0-linux-x64.tar.gz 
-run     tar -C /usr/local/ --strip-components=1 -zxvf /tmp/node-v0.11.0.tar.gz
-run     rm /tmp/node-v0.11.0.tar.gz
-run     git clone git://github.com/etsy/statsd.git statsd
+FROM    ubuntu:14.04
+RUN     sed 's/main$/main universe/' -i /etc/apt/sources.list
+RUN     apt-get -y update
+RUN     apt-get -y install wget git
+RUN     wget -O /tmp/node-v0.11.9.tar.gz http://nodejs.org/dist/v0.11.9/node-v0.11.9-linux-x64.tar.gz
+RUN     tar -C /usr/local/ --strip-components=1 -zxvf /tmp/node-v0.11.9.tar.gz
+RUN     rm /tmp/node-v0.11.9.tar.gz
+RUN     git clone git://github.com/etsy/statsd.git statsd
 
-add     ./config.js ./statsd/config.js
+ENV GRAPHITE_PORT 2003
+ENV GRAPHITE_HOST localhost
+ENV STATSD_PORT 8125
+ENV FLUSH_INTERVAL 10000
+ENV GRAPHITE_GLOBAL_PREFIX stats
+ENV STATSD_DEBUG false
+ENV STATSD_DUMP false
+ENV ENABLE_CONSOLE_BACKEND false
 
-expose  8125/udp
-expose  8126/tcp
+ADD     ./config.js ./statsd/config.js
 
-cmd     /usr/local/bin/node /statsd/stats.js /statsd/config.js
+EXPOSE  8125/udp
+EXPOSE  8126/tcp
+
+CMD     /usr/local/bin/node /statsd/stats.js /statsd/config.js
